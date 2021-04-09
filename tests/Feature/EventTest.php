@@ -234,188 +234,18 @@ class EventTest extends TestCase
         ])->assertUnauthorized();
     }
 
-    /** @test */
-    public function title_is_required_to_create()
+    /**
+     * @test
+     * @dataProvider validations
+     */
+    public function create_validations($data, $errors)
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $this->json('post', '/api/events', [
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-01 10:00:00',
-            'valid_to'   => '2021-04-20 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'title' => [__('validation.required', ['attribute' => 'title'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function content_is_required_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'valid_from' => '2021-04-01 10:00:00',
-            'valid_to'   => '2021-04-20 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'content' => [__('validation.required', ['attribute' => 'content'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_is_required_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'    => 'Some Title',
-            'content'  => 'Some Content',
-            'valid_to' => '2021-04-20 10:00:00',
-            'gps_lat'  => '1',
-            'gps_lng'  => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.required', ['attribute' => 'valid from'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_should_be_a_valid_date_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => 'invalid date',
-            'valid_to'   => '2021-04-20 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.date', ['attribute' => 'valid from'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_should_match_with_pattern_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '04/30/2021 10:00:00',
-            'valid_to'   => '2021-04-20 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.date_format', ['attribute' => 'valid from', 'format' => 'Y-m-d H:i:s'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_is_required_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-20 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.required', ['attribute' => 'valid to'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_should_be_a_valid_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-20 10:00:00',
-            'valid_to'   => 'invalid date',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.date', ['attribute' => 'valid to'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_should_match_with_pattern_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-20 10:00:00',
-            'valid_to'   => '04/20/2021 10:00:00',
-            'gps_lat'    => '1',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.date_format', ['attribute' => 'valid to', 'format' => 'Y-m-d H:i:s'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function gps_lat_is_required_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-20 10:00:00',
-            'valid_to'   => '2021-04-24 10:00:00',
-            'gps_lng'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'gps_lat' => [__('validation.required', ['attribute' => 'gps lat'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function gps_lng_is_required_to_create()
-    {
-        Sanctum::actingAs(User::factory()->create(), ['*']);
-
-        $this->json('post', '/api/events', [
-            'title'      => 'Some Title',
-            'content'    => 'Some Content',
-            'valid_from' => '2021-04-20 10:00:00',
-            'valid_to'   => '2021-04-24 10:00:00',
-            'gps_lat'    => '2',
-        ])->assertJson([
-            'errors' => [
-                'gps_lng' => [__('validation.required', ['attribute' => 'gps lng'])],
-            ],
-        ]);
+        $this->json('post', '/api/events', $data)
+            ->assertJson([
+                'errors' => $errors,
+            ]);
     }
 
     /** @test */
@@ -511,8 +341,11 @@ class EventTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function title_is_required_to_update()
+    /**
+     * @test
+     * @dataProvider validations
+     */
+    public function update_validations($data, $errors)
     {
         $user = User::factory()->create();
 
@@ -520,218 +353,8 @@ class EventTest extends TestCase
 
         $event = Event::factory()->create(['user_id' => $user->id]);
 
-        $this->json('put', '/api/events/' . $event->id, [
-            'content'    => 'Edit Content',
-            'valid_from' => '2021-05-01 10:00:00',
-            'valid_to'   => '2021-05-05 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'title' => [__('validation.required', ['attribute' => 'title'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function content_is_required_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'valid_from' => '2021-05-01 10:00:00',
-            'valid_to'   => '2021-05-05 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'content' => [__('validation.required', ['attribute' => 'content'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_is_required_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'    => 'title',
-            'content'  => 'content',
-            'valid_to' => '2021-05-05 10:00:00',
-            'gps_lat'  => '2',
-            'gps_lng'  => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.required', ['attribute' => 'valid from'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_should_be_a_valid_date_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => 'invalid date',
-            'valid_to'   => '2021-05-05 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.date', ['attribute' => 'valid from'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_from_should_match_with_pattern_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '01/05/2021 08:00:00',
-            'valid_to'   => '2021-05-05 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_from' => [__('validation.date_format', ['attribute' => 'valid from', 'format' => 'Y-m-d H:i:s'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_is_required_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '2021-05-05 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.required', ['attribute' => 'valid to'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_should_be_a_valid_date_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '2021-05-05 10:00:00',
-            'valid_to'   => 'invalid date',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.date', ['attribute' => 'valid to'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function valid_to_should_match_with_pattern_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '2021-05-05 10:00:00',
-            'valid_to'   => '05/10/2021 10:00:00',
-            'gps_lat'    => '2',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'valid_to' => [__('validation.date_format', ['attribute' => 'valid to', 'format' => 'Y-m-d H:i:s'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function gps_lat_is_required_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '2021-05-05 10:00:00',
-            'valid_to'   => '2021-05-10 10:00:00',
-            'gps_lng'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'gps_lat' => [__('validation.required', ['attribute' => 'gps lat'])],
-            ],
-        ]);
-    }
-
-    /** @test */
-    public function gps_lng_is_required_to_update()
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['*']);
-
-        $event = Event::factory()->create(['user_id' => $user->id]);
-
-        $this->json('put', '/api/events/' . $event->id, [
-            'title'      => 'title',
-            'content'    => 'content',
-            'valid_from' => '2021-05-05 10:00:00',
-            'valid_to'   => '2021-05-10 10:00:00',
-            'gps_lat'    => '3',
-        ])->assertJson([
-            'errors' => [
-                'gps_lng' => [__('validation.required', ['attribute' => 'gps lng'])],
-            ],
+        $this->json('put', '/api/events/' . $event->id, $data)->assertJson([
+            'errors' => $errors,
         ]);
     }
 
@@ -823,5 +446,60 @@ class EventTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('events', ['id' => $event->id]);
+    }
+
+    public function validations()
+    {
+        $data = collect([
+            'title'      => 'Some Title',
+            'content'    => 'Some Content',
+            'valid_from' => '2021-04-01 10:00:00',
+            'valid_to'   => '2021-04-20 10:00:00',
+            'gps_lat'    => '1',
+            'gps_lng'    => '2',
+        ]);
+
+        return [
+            [
+                $data->except('title')->toArray(),
+                ['title' => ['The title field is required.']],
+            ],
+            [
+                $data->except('content')->toArray(),
+                ['content' => ['The content field is required.']],
+            ],
+            [
+                $data->except('valid_from')->toArray(),
+                ['valid_from' => ['The valid from field is required.']],
+            ],
+            [
+                $data->put('valid_from', 'invalid date')->toArray(),
+                ['valid_from' => ['The valid from is not a valid date.']],
+            ],
+            [
+                $data->put('valid_from', '04/20/2021 10:00:00')->toArray(),
+                ['valid_from' => ['The valid from does not match the format Y-m-d H:i:s.']],
+            ],
+            [
+                $data->except('valid_to')->toArray(),
+                ['valid_to' => ['The valid to field is required.']],
+            ],
+            [
+                $data->put('valid_to', 'invalid date')->toArray(),
+                ['valid_to' => ['The valid to is not a valid date.']],
+            ],
+            [
+                $data->put('valid_to', '04/20/2021 10:00:00')->toArray(),
+                ['valid_to' => ['The valid to does not match the format Y-m-d H:i:s.']],
+            ],
+            [
+                $data->except('gps_lat')->toArray(),
+                ['gps_lat' => ['The gps lat field is required.']],
+            ],
+            [
+                $data->except('gps_lng')->toArray(),
+                ['gps_lng' => ['The gps lng field is required.']],
+            ],
+        ];
     }
 }
