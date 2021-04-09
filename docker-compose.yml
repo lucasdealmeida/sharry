@@ -1,0 +1,19 @@
+version: '2'
+services:
+  sharry_app:
+    container_name: sharry_app
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+  sharry_db:
+    image: mysql:5.7
+    container_name: sharry_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - /var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=sharry
