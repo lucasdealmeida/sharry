@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class NotifyNewsOwnerAboutNewComment extends Mailable
+class NotifyEventOwnerAboutNewComment extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -32,8 +32,8 @@ class NotifyNewsOwnerAboutNewComment extends Mailable
     public function build()
     {
         return $this
-            ->subject('Your news has a new comment.')
+            ->subject('Your event has a new comment.')
             ->to($this->comment->commentable->user->email)
-            ->markdown('emails.notify_news_owner_about_new_comment');
+            ->markdown('emails.notify_event_owner_about_new_comment');
     }
 }

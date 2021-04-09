@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Mail\NotifyNewsOwnerAboutNewComment;
+use App\Mail\NotifyEventOwnerAboutNewComment;
 use App\Models\Comment;
-use App\Models\News;
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class NewsCommentTest extends TestCase
+class EventCommentTest extends TestCase
 {
     use RefreshDatabase;
 
     /** @test */
-    public function create_a_new_comment_on_news()
+    public function it_should_create_a_new_comment_on_event()
     {
         Mail::fake();
 
@@ -25,11 +25,11 @@ class NewsCommentTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $news = News::factory()
+        $event = Event::factory()
             ->for(User::factory()->create(['email' => 'john@doe.com']))
             ->create();
 
-        $response = $this->json('post', '/api/news/' . $news->id . '/comments', [
+        $response = $this->json('post', '/api/events/' . $event->id . '/comments', [
             'nick_name' => 'JohnDoe',
             'content'   => 'Some Content',
         ]);
@@ -40,21 +40,21 @@ class NewsCommentTest extends TestCase
             'nick_name'        => 'JohnDoe',
             'content'          => 'Some Content',
             'user_id'          => $user->id,
-            'commentable_type' => News::class,
-            'commentable_id'   => $news->id,
+            'commentable_type' => Event::class,
+            'commentable_id'   => $event->id,
         ]);
 
-        Mail::assertSent(NotifyNewsOwnerAboutNewComment::class, function ($mail) {
+        Mail::assertSent(NotifyEventOwnerAboutNewComment::class, function ($mail) {
             return $mail->comment->commentable->user->email == 'john@doe.com';
         });
     }
 
     /** @test */
-    public function guests_can_not_create_a_new_comment_on_news()
+    public function guests_can_not_create_a_new_comment()
     {
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
-        $this->json('post', '/api/news/' . $news->id . '/comments', [
+        $this->json('post', '/api/events/' . $event->id . '/comments', [
             'nick_name' => 'JohnDoe',
             'content'   => 'Some Content',
         ])->assertUnauthorized();
@@ -65,9 +65,9 @@ class NewsCommentTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
-        $this->json('post', '/api/news/' . $news->id . '/comments', [
+        $this->json('post', '/api/events/' . $event->id . '/comments', [
             'content' => 'Some Content',
         ])->assertJson([
             'errors' => [
@@ -81,9 +81,9 @@ class NewsCommentTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
-        $this->json('post', '/api/news/' . $news->id . '/comments', [
+        $this->json('post', '/api/events/' . $event->id . '/comments', [
             'nick_name' => 'JohnDoe',
         ])->assertJson([
             'errors' => [
@@ -99,14 +99,14 @@ class NewsCommentTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
         $comment = Comment::factory()
-            ->for($news, 'commentable')
+            ->for($event, 'commentable')
             ->for($user)
             ->create();
 
-        $response = $this->json('delete', '/api/news/' . $news->id . '/comments/' . $comment->id);
+        $response = $this->json('delete', '/api/events/' . $event->id . '/comments/' . $comment->id);
 
         $response->assertStatus(204);
 
@@ -116,11 +116,11 @@ class NewsCommentTest extends TestCase
     /** @test */
     public function guests_can_not_destroy_a_comment()
     {
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
-        $comment = Comment::factory()->for($news, 'commentable')->create();
+        $comment = Comment::factory()->for($event, 'commentable')->create();
 
-        $this->json('delete', '/api/news/' . $news->id . '/comments/' . $comment->id)
+        $this->json('delete', '/api/events/' . $event->id . '/comments/' . $comment->id)
             ->assertUnauthorized();
     }
 
@@ -129,11 +129,11 @@ class NewsCommentTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $news = News::factory()->create();
+        $event = Event::factory()->create();
 
-        $comment = Comment::factory()->for($news, 'commentable')->create();
+        $comment = Comment::factory()->for($event, 'commentable')->create();
 
-        $response = $this->json('delete', '/api/news/' . $news->id . '/comments/' . $comment->id);
+        $response = $this->json('delete', '/api/events/' . $event->id . '/comments/' . $comment->id);
 
         $response->assertForbidden();
 

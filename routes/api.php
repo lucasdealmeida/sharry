@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventCommentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NewsCommentController;
@@ -32,3 +33,8 @@ Route::get('/events', [EventController::class, 'index'])->middleware('auth:sanct
 Route::post('/events', [EventController::class, 'store'])->middleware('auth:sanctum');
 Route::put('/events/{event}', [EventController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/events/{event}', [EventController::class, 'destroy'])->middleware('auth:sanctum');
+
+Route::post('/events/{event}/comments', [EventCommentController::class, 'store'])
+    ->middleware('auth:sanctum');
+Route::delete('/events/{event}/comments/{comment}', [EventCommentController::class, 'destroy'])
+    ->middleware('auth:sanctum');
