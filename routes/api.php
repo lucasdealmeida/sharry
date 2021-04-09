@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\NewsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,8 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::post('/login', LoginController::class);
+
+Route::get('/news', [NewsController::class, 'index']);
+
+Route::post('/news', [NewsController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/news/{news}', [NewsController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/news/{news}', [NewsController::class, 'destroy'])->middleware('auth:sanctum');
