@@ -13,20 +13,25 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $events = Event::query();
-
-        if ($request->has('from') and $request->has('to')) {
+        $from = now()->startOfDay()->format('Y-m-d H:i:s');
+        if ($request->has('from')) {
             $from = Carbon::parse($request->get('from'))->startOfDay()->format('Y-m-d H:i:s');
-            $to   = Carbon::parse($request->get('to'))->endOfDay()->format('Y-m-d H:i:s');
-
-            $events->whereRaw("valid_from BETWEEN ? and ?", [$from, $to])
-                ->orWhereRaw("valid_to BETWEEN ? and ?", [$from, $to]);
-        } else {
-            $events->where('valid_from', '<=', now()->format('Y-m-d H:i:s'))
-                ->where('valid_to', '>=', now()->format('Y-m-d H:i:s'));
         }
 
-        return EventResource::collection($events->get());
+        $to = now()->endOfDay()->format('Y-m-d H:i:s');
+        if ($request->has('to')) {
+            $to = Carbon::parse($request->get('to'))->endOfDay()->format('Y-m-d H:i:s');
+        }
+
+        $events = Event::query()
+            ->whereRaw('? between valid_from and valid_to', [$from])
+            ->orWhereRaw('? between valid_from and valid_to', [$to])
+            ->orWhere(function($query) use ($from, $to){
+                $query->where('valid_from', '>=', $from)
+                    ->where('valid_to', '<=', $to);
+            })->get();
+
+        return EventResource::collection($events);
     }
 
     public function store(EventRequest $request)
@@ -64,10 +69,10 @@ class EventController extends Controller
     {
         $this->authorize('destroy', $event);
 
-        if ($event->comments()->count()){
+        if ($event->comments()->count()) {
             return response()->json([
-                'error' => true,
-                'message' => 'Can not delete event when it has comments.'
+                'error'   => true,
+                'message' => 'Can not delete event when it has comments.',
             ]);
         }
 
