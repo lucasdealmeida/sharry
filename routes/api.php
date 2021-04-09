@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NewsController;
 use Illuminate\Http\Request;
@@ -23,3 +24,8 @@ Route::get('/news', [NewsController::class, 'index']);
 Route::post('/news', [NewsController::class, 'store'])->middleware('auth:sanctum');
 Route::put('/news/{news}', [NewsController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/news/{news}', [NewsController::class, 'destroy'])->middleware('auth:sanctum');
+
+Route::get('/events', [EventController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/events', [EventController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/events/{event}', [EventController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/events/{event}', [EventController::class, 'destroy'])->middleware('auth:sanctum');
