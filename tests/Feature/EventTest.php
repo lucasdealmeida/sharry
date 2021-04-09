@@ -149,30 +149,18 @@ class EventTest extends TestCase
         Carbon::setTestNow('2021-04-09 00:39:00');
 
         $event1 = Event::factory()->create([
-            'title'      => 'Event 1 Title',
-            'content'    => 'Event 1 Content',
             'valid_from' => '2021-04-10 10:00:00',
             'valid_to'   => '2021-04-13 10:00:00',
-            'gps_lat'    => '-26.650969718825014',
-            'gps_lng'    => '-48.6844083429979',
         ]);
 
         $event2 = Event::factory()->create([
-            'title'      => 'Event 2 Title',
-            'content'    => 'Event 2 Content',
             'valid_from' => '2021-04-14 10:00:00',
             'valid_to'   => '2021-04-17 10:00:00',
-            'gps_lat'    => '-26.650969718825014',
-            'gps_lng'    => '-48.6844083429979',
         ]);
 
         $event3 = Event::factory()->create([
-            'title'      => 'Event 3 Title',
-            'content'    => 'Event 3 Content',
             'valid_from' => '2021-04-10 10:00:00',
             'valid_to'   => '2021-04-20 10:00:00',
-            'gps_lat'    => '-26.650969718825014',
-            'gps_lng'    => '-48.6844083429979',
         ]);
 
         Event::factory()->create([
