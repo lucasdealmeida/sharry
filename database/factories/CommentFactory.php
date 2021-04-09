@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CommentFactory extends Factory
@@ -24,6 +25,7 @@ class CommentFactory extends Factory
         return [
             'nick_name' => $this->faker->userName,
             'content'   => $this->faker->paragraph,
+            'user_id'   => User::factory(),
         ];
     }
 }
