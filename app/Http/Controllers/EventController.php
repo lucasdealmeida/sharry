@@ -13,22 +13,25 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $from = now()->startOfDay()->format('Y-m-d H:i:s');
+        $from = now()->startOfDay();
         if ($request->has('from')) {
-            $from = Carbon::parse($request->get('from'))->startOfDay()->format('Y-m-d H:i:s');
+            $from = Carbon::parse($request->get('from'))->startOfDay();
         }
 
-        $to = now()->endOfDay()->format('Y-m-d H:i:s');
+        $to = now()->endOfDay();
         if ($request->has('to')) {
-            $to = Carbon::parse($request->get('to'))->endOfDay()->format('Y-m-d H:i:s');
+            $to = Carbon::parse($request->get('to'))->endOfDay();
         }
 
         $events = Event::query()
-            ->whereRaw('? between valid_from and valid_to', [$from])
-            ->orWhereRaw('? between valid_from and valid_to', [$to])
+            ->whereRaw('? between valid_from and valid_to', [$from->format('Y-m-d H:i:s')])
+            ->orWhereRaw('? between valid_from and valid_to', [$to->format('Y-m-d H:i:s')])
             ->orWhere(function($query) use ($from, $to){
-                $query->where('valid_from', '>=', $from)
-                    ->where('valid_to', '<=', $to);
+                if (!$from->isSameDay($to)){
+                    $query->where('valid_to', '<=', $to->format('Y-m-d H:i:s'));
+                }
+
+                $query->where('valid_from', '>=', $from->format('Y-m-d H:i:s'));
             })->get();
 
         return EventResource::collection($events);

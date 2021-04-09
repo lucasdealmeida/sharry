@@ -16,10 +16,8 @@ class EventTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function list_all_upcoming_and_today_events()
+    public function list_events()
     {
-        $this->withoutExceptionHandling();
-
         Sanctum::actingAs(
             User::factory()->create(),
             ['*']
@@ -51,25 +49,6 @@ class EventTest extends TestCase
             'valid_to'   => '2021-04-20 10:00:00',
             'gps_lat'    => '-26.650969718825014',
             'gps_lng'    => '-48.6844083429979',
-        ]);
-
-        $event3 = Event::factory()->create([
-            'title'      => 'Event 3 Title',
-            'content'    => 'Event 3 Content',
-            'valid_from' => '2021-04-09 09:00:00',
-            'valid_to'   => '2021-04-09 10:00:00',
-            'gps_lat'    => '-26.650969718825014',
-            'gps_lng'    => '-48.6844083429979',
-        ]);
-
-        Event::factory()->create([
-            'valid_from' => '2021-04-01 10:00:00',
-            'valid_to'   => '2021-04-08 10:00:00',
-        ]);
-
-        Event::factory()->create([
-            'valid_from' => '2021-04-10 10:00:00',
-            'valid_to'   => '2021-04-25 10:00:00',
         ]);
 
         $response = $this->json('get', '/api/events');
@@ -108,17 +87,55 @@ class EventTest extends TestCase
                 'gps_lng'    => -48.6844083429979,
                 'comments'   => [],
             ],
-            [
-                'id'         => $event3->id,
-                'title'      => 'Event 3 Title',
-                'content'    => 'Event 3 Content',
-                'valid_from' => '2021-04-09 09:00:00',
-                'valid_to'   => '2021-04-09 10:00:00',
-                'gps_lat'    => -26.650969718825014,
-                'gps_lng'    => -48.6844083429979,
-                'comments'   => [],
-            ],
         ]);
+    }
+
+    /** @test */
+    public function list_all_upcoming_and_today_events()
+    {
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+
+        Carbon::setTestNow('2021-04-09 12:00:00');
+
+        $event1 = Event::factory()->create([
+            'valid_from' => '2021-04-06 10:00:00',
+            'valid_to'   => '2021-04-12 10:00:00',
+        ]);
+
+        $event2 = Event::factory()->create([
+            'valid_from' => '2021-04-08 10:00:00',
+            'valid_to'   => '2021-04-20 10:00:00',
+        ]);
+
+        $event3 = Event::factory()->create([
+            'valid_from' => '2021-04-09 09:00:00',
+            'valid_to'   => '2021-04-09 10:00:00',
+        ]);
+
+        $event4 = Event::factory()->create([
+            'valid_from' => '2021-04-12 09:00:00',
+            'valid_to'   => '2021-04-20 10:00:00',
+        ]);
+
+        Event::factory()->create([
+            'valid_from' => '2021-04-01 10:00:00',
+            'valid_to'   => '2021-04-08 10:00:00',
+        ]);
+
+        $response = $this->json('get', '/api/events');
+
+        $this->assertEquals(4, count($response->json()));
+
+        $this->assertEquals($event1->id, $response->json()[0]['id']);
+
+        $this->assertEquals($event2->id, $response->json()[1]['id']);
+
+        $this->assertEquals($event3->id, $response->json()[2]['id']);
+
+        $this->assertEquals($event4->id, $response->json()[3]['id']);
     }
 
     /** @test */
@@ -171,7 +188,6 @@ class EventTest extends TestCase
         $response = $this->json('get', '/api/events?from=2021-04-12&to=2021-04-18');
 
         $response->assertOk();
-
 
         $this->assertEquals(3, count($response->json()));
 
